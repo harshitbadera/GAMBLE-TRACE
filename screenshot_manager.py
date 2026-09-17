@@ -57,7 +57,7 @@ async def check_liveness_and_screenshot(browser, domain: str, sem: asyncio.Semap
                         # Save screenshot
                         ss_filename = f"{domain}_{int(time.time())}.png"
                         ss_path = os.path.join(SCREENSHOT_DIR, ss_filename)
-                        await page.screenshot(path=ss_path)
+                        await page.screenshot(path=ss_path, full_page=True)
                         
                         result["status"] = "Working"
                         result["screenshot_path"] = ss_path

@@ -33,3 +33,9 @@ Thumbs.db
 !output/.gitkeep
 !logs/.gitkeep
 !data/.gitkeep
+
+# Local GambleTrace database files
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/cases/

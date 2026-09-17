@@ -1,0 +1,6 @@
+{% extends "case_base.html" %}
+{% block title %}Sign in · GambleTrace{% endblock %}
+{% block content %}
+<section class="page-hero"><div><p class="eyebrow">Protected investigation workspace</p><h1>Sign in to GambleTrace.</h1><p class="subtitle">Case evidence, exports, and analyst actions are available only to authenticated local users.</p></div></section>
+<section class="card card-pad" style="max-width:520px">{% if error %}<div class="notice error">{{ error }}</div>{% endif %}<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="next" value="{{ request.args.get('next', '') }}"><div class="field"><label for="username">Username</label><input id="username" name="username" autocomplete="username" required autofocus></div><div class="field"><label for="password">Password</label><input id="password" type="password" name="password" autocomplete="current-password" required></div><button class="button" type="submit">Sign in →</button></form>{% if setup_available %}<p class="hint mt-12">No local account exists yet. <a href="{{ url_for('auth.setup') }}">Set up the first administrator</a>.</p>{% endif %}</section>
+{% endblock %}

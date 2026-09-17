@@ -65,6 +65,19 @@ The current Flask dashboard implements the first intelligence-collection layer:
 
 | Step | Capability | Current output |
 | --- | --- | --- |
+| Case Workspace | Create and manage investigation cases, seed domains, notes, tags, workflow status, and historical observations | SQLite-backed case register at `/cases` |
+| Evidence Collection | Run a case-scoped DNS, HTTP, redirect, RDAP/ASN, infrastructure, and optional screenshot collection | Structured immutable observation details |
+| Evidence Integrity | Retain collection artifacts, SHA-256 hash every file, and create an immutable manifest | Case-specific evidence package |
+| TLS Intelligence | Capture certificate fingerprints, SANs, validity, endpoint handshake data, and in-case certificate reuse | TLS evidence and pivot panel |
+| Case Discovery | Add bounded candidates from variants, redirects, reverse IP, TLS SANs, nameservers, and exact content matches | Provenance-labelled case domains |
+| Content Fingerprints | Retain normalized HTML, visible text, favicon hashes, and explainable gambling/payment/India indicators | Immutable content evidence and case summary |
+| Explainable Scoring | Calculate visible risk factors and prepare relationship-confidence inputs | Current domain score plus immutable assessments |
+| Correlation & Clusters | Link evidence-backed domain pairs and build medium/high-confidence infrastructure clusters | Relationship edges, artifact links, and cluster summaries |
+| Investigation Workspace UI | Navigate a case overview, domain evidence profiles, hash-registered evidence, cluster drill-downs, timeline, and interactive relationship graph | Analyst-oriented case console at `/cases` |
+| Operational Jobs | Run collection, discovery, scoring, and correlation without blocking the browser, with progress and failure status retained per case | Live Operation status panel and `/cases/<case_id>/jobs` |
+| Historical Monitoring | Compare each new evidence snapshot with its predecessor and retain reviewable change alerts | DNS, TLS, redirects, content, hosting/ASN, and availability alerts |
+| Investigator Exports | Generate a case report, typed IOCs, GraphML/JSON relationships, and verified evidence ZIP package | Case export center at `/cases/<case_id>/exports` |
+| Security & Retention | Use CSRF protection, secure storage handling, HTTPS-ready headers, input limits, and conservative cleanup | Public local-development dashboard with documented production settings |
 | 1 | Generate gambling-domain variants and validate them through parallel DNS lookups | CSV of DNS-resolving domains and IPs |
 | 2 | Resolve infrastructure and pivot from non-CDN IP addresses | Infrastructure CSV and reverse-IP discovery CSV |
 | 3 | Check liveness, capture browser screenshots, and generate a report | DOCX liveness report |
@@ -77,10 +90,35 @@ The current Flask dashboard implements the first intelligence-collection layer:
 - Reverse-IP discovery: HackerTarget reverse-IP lookup for non-CDN infrastructure
 - Web evidence: HTTP status, redirects, page title, HTML content, and screenshots
 - Content indicators: gambling, India-focused, payment, and exposed-credential patterns
+- Seed provenance: retained case-specific source files, SHA-256 hashes, and domain-to-source links
 
 ## Target architecture
 
 The project will evolve from a four-step OSINT dashboard into a case-based investigation platform.
+
+The agreed case lifecycle, labels, relationship semantics, and logical database model are documented in [Case Workflow and Data Model](docs/CASE_WORKFLOW_AND_DATA_MODEL.md).
+
+SQLite persistence and the versioned migration process are documented in [Database and Migrations](docs/DATABASE_AND_MIGRATIONS.md).
+
+The current investigator workspace and its routes are documented in [Case Workspace](docs/CASE_WORKSPACE.md).
+
+Seed-file preservation, source metadata, SHA-256 hashing, and domain provenance are documented in [Seed Source Provenance](docs/SEED_SOURCE_PROVENANCE.md).
+
+Append-only domain history is documented in [Historical Domain Observations](docs/HISTORICAL_OBSERVATIONS.md).
+
+Case-scoped technical collection is documented in [Evidence Collection](docs/EVIDENCE_COLLECTION.md).
+
+Evidence files, hashes, and manifests are documented in [Evidence Artifacts and Chain of Custody](docs/EVIDENCE_MANIFESTS.md).
+
+Certificate evidence and reuse pivots are documented in [TLS Certificate Intelligence](docs/TLS_CERTIFICATE_INTELLIGENCE.md).
+
+Discovery modes and their limits are documented in [Case Discovery Pivots](docs/CASE_DISCOVERY_PIVOTS.md).
+
+Content and payment fingerprints are documented in [Content Fingerprints](docs/CONTENT_FINGERPRINTS.md).
+
+Scoring factors, thresholds, and limits are documented in [Explainable Scoring](docs/EXPLAINABLE_SCORING.md).
+
+Evidence relationships and clusters are documented in [Relationships and Clusters](docs/RELATIONSHIPS_AND_CLUSTERS.md).
 
 ```text
 Case
@@ -381,33 +419,49 @@ Technical appendices
 - [x] Infrastructure enrichment and reverse-IP pivoting
 - [x] Liveness checks and screenshot reports
 - [x] Homepage content analysis
-- [ ] Case creation and case metadata
-- [ ] Structured evidence folders
-- [ ] SHA-256 artifact hashing and manifests
-- [ ] DNS, HTTP-header, redirect, and raw-HTML evidence capture
+- [x] Case creation and case metadata
+- [x] Structured evidence folders
+- [x] SHA-256 artifact hashing and manifests
+- [x] DNS, HTTP-header, redirect, and raw-HTML evidence capture
 
 ### Phase 2 — Intelligence correlation
 
-- [ ] TLS certificate collection and pivoting
-- [ ] Content, HTML, and favicon fingerprinting
-- [ ] Explainable domain-risk scoring
-- [ ] Relationship graph with evidence-backed edges
-- [ ] Confidence-scored infrastructure clustering
+- [x] TLS certificate collection and pivoting
+- [x] Content, HTML, and favicon fingerprinting
+- [x] Explainable domain-risk scoring
+- [x] Relationship graph with evidence-backed edges
+- [x] Confidence-scored infrastructure clustering
+- [x] Case dashboard, evidence register, domain profiles, cluster views, and timeline
+- [x] Interactive graph filters and node/edge evidence-detail panels
 
 ### Phase 3 — Monitoring and reporting
 
-- [ ] Historical observation database
-- [ ] Infrastructure mutation detection
+- [x] Background operations, visible progress, scoped cooldowns, and job error status
+- [x] Historical observation database and change alerts
+- [x] Infrastructure mutation detection for DNS, TLS, redirects, content, and hosting
 - [ ] Scheduled monitoring and alerts
 - [ ] Analyst notes, tags, and audit trail
-- [ ] IOC exports
-- [ ] Case-level intelligence and incident reports
+- [x] IOC exports, graph exports, and verified evidence ZIP packages
+- [x] Case-level intelligence report
+
+### Phase 4 — Security and deployment
+
+- [x] Local authentication, CSRF protection, and login throttling
+- [x] Secure evidence/download handling and generated-file retention cleanup
+- [ ] Container and production deployment assets
 
 ## Repository structure
 
 ```text
 gambling_osint/
-├── app.py                         # Flask dashboard and API endpoints
+├── app.py                         # Flask development entry point
+├── gambletrace/                   # Modular application package
+│   ├── routes/                    # Dashboard, analysis, and download endpoints
+│   ├── services/                  # Input, expansion, infrastructure, content, artifacts
+│   │   └── case_management.py      # Case, seed, note, tag, and audit services
+│   ├── models/                    # Shared data contracts; database models come next
+│   ├── collectors/                # Browser/network collection integrations
+│   └── reports/                   # Report generation integrations
 ├── quick_expand.py                # Domain variation generation and DNS validation
 ├── screenshot_manager.py          # Playwright screenshots and DOCX reports
 ├── utils.py                       # Domain, Excel, CSV, and progress helpers
@@ -418,6 +472,7 @@ gambling_osint/
 ├── data/
 │   └── manual_domains.txt         # Optional manually maintained domain list
 ├── output/                        # Generated artifacts and reports
+├── docs/                          # Architecture and implementation documentation
 └── requirements.txt               # Python dependencies
 ```
 
@@ -438,6 +493,12 @@ venv\Scripts\activate
 
 pip install -r requirements.txt
 playwright install chromium
+```
+
+The application creates and migrates its local SQLite database automatically at `data/gambletrace.db`. To run migrations explicitly:
+
+```bash
+flask --app app migrate-db
 ```
 
 ### Run the dashboard

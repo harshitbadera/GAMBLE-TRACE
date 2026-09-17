@@ -1,30 +1,29 @@
-GAMBLETRACE — COMPACT PROJECT PLAN
+GAMBLETRACE - COMPACT PROJECT PLAN
 ===================================
 
 Work through these items in order. Complete and test one item before starting the next.
 
-1. Define the case workflow, statuses, labels, and database schema.
-2. Restructure the Flask backend into routes, services, models, collectors, and reports.
-3. Add SQLite database support and migrations.
-4. Build case creation, seed upload, case notes, tags, and case dashboard.
-5. Improve domain normalization, source tracking, and seed-file SHA-256 hashing.
-6. Create domain observations: keep every collection result historically; never overwrite old data.
-7. Build evidence collection for HTML, headers, redirects, DNS, RDAP, screenshots, and infrastructure.
-8. Hash every evidence artifact and create an evidence manifest/chain-of-custody record.
-9. Add TLS certificate collection, certificate fingerprints, SANs, and certificate pivots.
-10. Upgrade discovery with domain variants, reverse IP, redirects, nameservers, TLS, and content pivots.
-11. Add content, HTML, favicon, and payment-indicator fingerprints.
-12. Create explainable gambling-risk and relationship-confidence scoring.
-13. Build relationship correlation and confidence-scored infrastructure clusters.
-14. Build the frontend: case dashboard, domain detail, evidence viewer, cluster view, and timelines.
-15. Add an interactive investigation graph with filters and node-detail panels.
-16. Add background jobs, progress indicators, error handling, and rate limiting.
-17. Add historical monitoring and alerts for DNS, TLS, redirects, content, and hosting changes.
-18. Generate reports, IOC exports, evidence ZIP packages, and graph exports.
-19. Add authentication, secure evidence handling, cleanup/retention, and production settings.
+1. [DONE] Define the case workflow, statuses, labels, and database schema.
+2. [DONE] Restructure the Flask backend into routes, services, models, collectors, and reports.
+3. [DONE] Add SQLite database support and migrations.
+4. [DONE] Build case creation, seed upload, case notes, tags, and case dashboard.
+5. [DONE] Improve domain normalization, source tracking, and seed-file SHA-256 hashing.
+6. [DONE] Create domain observations: keep every collection result historically; never overwrite old data.
+7. [DONE] Build evidence collection for HTML metadata, headers, redirects, DNS, RDAP, screenshots, and infrastructure.
+8. [DONE] Hash every evidence artifact and create an evidence manifest/chain-of-custody record.
+9. [DONE] Add TLS certificate collection, certificate fingerprints, SANs, and certificate pivots.
+10. [DONE] Upgrade discovery with domain variants, reverse IP, redirects, nameservers, TLS, and content pivots.
+11. [DONE] Add content, HTML, favicon, and payment-indicator fingerprints.
+12. [DONE] Create explainable gambling-risk and relationship-confidence scoring.
+13. [DONE] Build relationship correlation and confidence-scored infrastructure clusters.
+14. [DONE] Build the frontend: case dashboard, domain detail, evidence viewer, cluster view, and timelines.
+15. [DONE] Add an interactive investigation graph with filters and node-detail panels.
+16. [DONE] Add background jobs, progress indicators, error handling, and rate limiting.
+17. [DONE] Add historical monitoring and alerts for DNS, TLS, redirects, content, and hosting changes.
+18. [DONE] Generate reports, IOC exports, evidence ZIP packages, and graph exports.
+19. [DONE] Add authentication, secure evidence handling, cleanup/retention, and production settings.
 20. Add tests, demo data, Docker/deployment files, documentation, and research-paper material.
 
 FIRST IMPLEMENTATION TASK
 -------------------------
-Start with Item 1: define the case workflow and the database schema.
-This is the foundation for evidence collection, graphs, monitoring, and reports.
+Next: Item 20 - add tests, demo data, Docker/deployment files, documentation, and research-paper material.

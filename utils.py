@@ -10,11 +10,12 @@ Shared utility functions used across all pipeline stages:
 =============================================================================
 """
 
-import re
 import csv
+import ipaddress
 import logging
+import re
 import tldextract
-from urllib.parse import urlparse
+from urllib.parse import urlsplit
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,21 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────────────────────────────────────
 # DOMAIN NORMALIZATION & VALIDATION
 # ─────────────────────────────────────────────────────────────────────────────
+
+def _hostname_from_input(raw_input: str) -> str:
+    """Extract and normalize a hostname from a URL or host-like input value."""
+    value = raw_input.strip().lstrip("*.")
+    if not value:
+        return ""
+    parsed = urlsplit(value if "://" in value else f"//{value}")
+    hostname = (parsed.hostname or "").rstrip(".").lower()
+    if not hostname:
+        return ""
+    try:
+        return hostname.encode("idna").decode("ascii")
+    except UnicodeError:
+        return ""
+
 
 def normalize_domain(raw_input: str) -> str:
     """
@@ -37,28 +53,25 @@ def normalize_domain(raw_input: str) -> str:
     if not raw_input or not isinstance(raw_input, str):
         return ""
 
-    raw_input = raw_input.strip()
-
-    # Remove protocol prefix
-    cleaned = raw_input.replace("https://", "").replace("http://", "")
-    # Remove path and query
-    cleaned = cleaned.split("/")[0].split("?")[0].split("#")[0]
-    # Remove port
-    cleaned = cleaned.split(":")[0]
-    # Lowercase
-    cleaned = cleaned.lower().strip()
+    cleaned = _hostname_from_input(raw_input)
+    if not cleaned:
+        return ""
+    # Validate the full host before collapsing it to a registrable domain.
+    # This prevents an IP-like value such as 154.198.173.1.co from being
+    # reduced to a misleading registrable label such as 1.co.
+    if not is_valid_domain(cleaned):
+        return ""
 
     # Use tldextract for robust extraction
     try:
         ext = tldextract.extract(cleaned)
         if ext.domain and ext.suffix:
-            return f"{ext.domain}.{ext.suffix}"
-        elif ext.domain:
-            return ext.domain
+            normalized = f"{ext.domain}.{ext.suffix}".lower()
+            return normalized if is_valid_domain(normalized) else ""
     except Exception as e:
         logger.debug(f"tldextract failed for '{raw_input}': {e}")
 
-    return cleaned if cleaned else ""
+    return ""
 
 
 def extract_full_domain(raw_input: str) -> str:
@@ -70,12 +83,7 @@ def extract_full_domain(raw_input: str) -> str:
     if not raw_input or not isinstance(raw_input, str):
         return ""
 
-    raw_input = raw_input.strip()
-    cleaned = raw_input.replace("https://", "").replace("http://", "")
-    cleaned = cleaned.split("/")[0].split("?")[0].split("#")[0]
-    cleaned = cleaned.split(":")[0]
-
-    return cleaned.lower().strip()
+    return _hostname_from_input(raw_input)
 
 
 def is_valid_domain(domain: str) -> bool:
@@ -87,14 +95,13 @@ def is_valid_domain(domain: str) -> bool:
     if not domain or not isinstance(domain, str):
         return False
 
-    domain = domain.strip().lower()
+    domain = domain.strip().rstrip(".").lower()
 
     # Must contain at least one dot
     if "." not in domain:
         return False
 
-    # No spaces allowed
-    if " " in domain:
+    if len(domain) > 253 or " " in domain:
         return False
 
     # Basic pattern: alphanumeric, hyphens, dots
@@ -102,14 +109,20 @@ def is_valid_domain(domain: str) -> bool:
     if not bool(re.match(pattern, domain)):
         return False
 
-    # Filter out plain IPv4 addresses (e.g. 192.168.1.1)
-    ip_pattern = r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
-    if re.match(ip_pattern, domain):
+    try:
+        ipaddress.ip_address(domain)
+        return False
+    except ValueError:
+        pass
+
+    if any(len(label) > 63 for label in domain.split(".")):
         return False
 
     # Filter out IP-like domains (e.g. 154.198.173.1.co)
     try:
         ext = tldextract.extract(domain)
+        if not ext.domain or not ext.suffix:
+            return False
         non_tld_parts = []
         if ext.subdomain:
             non_tld_parts.extend(ext.subdomain.split('.'))

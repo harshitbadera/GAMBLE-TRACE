@@ -1,0 +1,14 @@
+{% extends "case_base.html" %}
+{% block title %}Create case · GambleTrace{% endblock %}
+{% block content %}
+<section class="page-hero"><div><p class="eyebrow">New investigation</p><h1>Set the case boundary first.</h1><p class="subtitle">A case isolates its seed sources, evidence, relationships, and analyst decisions from every other investigation.</p></div><a class="button-subtle" href="{{ url_for('cases.case_list') }}">← Back to cases</a></section>
+<section class="card card-pad" style="max-width:930px">{% if error %}<div class="notice error">{{ error }}</div>{% endif %}
+    <form method="post">
+        <div class="field"><label for="title">Case title *</label><input id="title" name="title" required maxlength="200" value="{{ form.get('title', '') if form else '' }}" placeholder="Suspected illegal gambling infrastructure investigation"><p class="hint">Use a clear, neutral title that can appear in an evidence report.</p></div>
+        <div class="form-row"><div class="field"><label for="owner_name">Analyst / owner</label><input id="owner_name" name="owner_name" maxlength="120" value="{{ form.get('owner_name', '') if form else '' }}" placeholder="Analyst name"></div><div class="field"><label for="priority">Priority</label><select id="priority" name="priority">{% for option in ['LOW','MEDIUM','HIGH','CRITICAL'] %}<option value="{{ option }}" {% if (form and form.get('priority') == option) or (not form and option == 'MEDIUM') %}selected{% endif %}>{{ option }}</option>{% endfor %}</select></div></div>
+        <div class="field"><label for="description">Investigation description</label><textarea id="description" name="description" placeholder="What is being investigated and why?">{{ form.get('description', '') if form else '' }}</textarea></div>
+        <div class="form-row"><div class="field"><label for="scope_note">Scope and collection boundaries</label><textarea id="scope_note" name="scope_note" placeholder="Domains, time period, permitted collection methods…">{{ form.get('scope_note', '') if form else '' }}</textarea></div><div class="field"><label for="authorization_note">Authorization reference</label><textarea id="authorization_note" name="authorization_note" placeholder="Approval, policy, or research authorization reference…">{{ form.get('authorization_note', '') if form else '' }}</textarea></div></div>
+        <div class="toolbar"><a class="button-subtle" href="{{ url_for('cases.case_list') }}">Cancel</a><button class="button" type="submit">Create investigation case →</button></div>
+    </form>
+</section>
+{% endblock %}

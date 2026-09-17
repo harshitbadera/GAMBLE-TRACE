@@ -22,9 +22,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 OUTPUT_DIR = os.path.join(BASE_DIR, "output")
 LOGS_DIR = os.path.join(BASE_DIR, "logs")
+CASE_STORAGE_DIR = os.path.join(DATA_DIR, "cases")
 
 # Ensure directories exist
-for _dir in [DATA_DIR, OUTPUT_DIR, LOGS_DIR]:
+for _dir in [DATA_DIR, OUTPUT_DIR, LOGS_DIR, CASE_STORAGE_DIR]:
     os.makedirs(_dir, exist_ok=True)
 
 # Input files

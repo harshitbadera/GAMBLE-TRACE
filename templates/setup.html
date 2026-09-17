@@ -1,0 +1,6 @@
+{% extends "case_base.html" %}
+{% block title %}Initial setup · GambleTrace{% endblock %}
+{% block content %}
+<section class="page-hero"><div><p class="eyebrow">One-time local setup</p><h1>Create the first administrator.</h1><p class="subtitle">This page is available only while no accounts exist and only with the configured initial setup token.</p></div></section>
+<section class="card card-pad" style="max-width:620px">{% if error %}<div class="notice error">{{ error }}</div>{% endif %}<form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="field"><label for="setup-token">Initial setup token</label><input id="setup-token" type="password" name="setup_token" required autocomplete="off"></div><div class="field"><label for="username">Administrator username</label><input id="username" name="username" required autocomplete="username"></div><div class="field"><label for="password">Password</label><input id="password" type="password" name="password" required autocomplete="new-password"><p class="hint">Use at least {{ config.AUTH_MIN_PASSWORD_LENGTH }} characters.</p></div><button class="button" type="submit">Create administrator →</button></form></section>
+{% endblock %}

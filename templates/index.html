@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gambling OSINT — Domain Intelligence</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>GambleTrace — Collection Tools</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -36,6 +37,21 @@
             background: linear-gradient(90deg, #818cf8, #6366f1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .case-workspace-link {
+            margin-left: auto;
+            padding: 0.5rem 0.8rem;
+            border: 1px solid rgba(129, 140, 248, 0.35);
+            border-radius: 7px;
+            color: #c7d2fe;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .case-workspace-link:hover {
+            background: rgba(99, 102, 241, 0.15);
         }
 
         header span {
@@ -368,8 +384,9 @@
 <body>
 
     <header>
-        <h1>Gambling OSINT</h1>
-        <span>Cyber Threat Intelligence — Domain Discovery & Infrastructure Lookup</span>
+        <h1>GambleTrace</h1>
+        <span>Threat Intelligence — Domain Discovery & Infrastructure Lookup</span>
+        <a class="case-workspace-link" href="/cases">Case Workspace</a>
     </header>
 
     <div class="container">
@@ -534,6 +551,7 @@
     </div>
 
     <script>
+        const csrfHeaders = { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content };
         // ── State ──
         let downloadIds = { 1: null, 2: null, 4: null };
         let reportDownloadFilename = null;
@@ -595,7 +613,7 @@
             form.append('file', file);
 
             try {
-                const resp = await fetch('/api/expand', { method: 'POST', body: form });
+                const resp = await fetch('/api/expand', { method: 'POST', headers: csrfHeaders, body: form });
                 const data = await resp.json();
 
                 loader.classList.remove('active');
@@ -667,7 +685,7 @@
             form.append('file', file);
 
             try {
-                const resp = await fetch('/api/lookup', { method: 'POST', body: form });
+                const resp = await fetch('/api/lookup', { method: 'POST', headers: csrfHeaders, body: form });
                 const data = await resp.json();
 
                 loader.classList.remove('active');
@@ -773,7 +791,7 @@
             form.append('file', file);
 
             try {
-                const resp = await fetch('/api/screenshot_report', { method: 'POST', body: form });
+                const resp = await fetch('/api/screenshot_report', { method: 'POST', headers: csrfHeaders, body: form });
                 const data = await resp.json();
 
                 loader.classList.remove('active');
@@ -822,7 +840,7 @@
             form.append('file', file);
 
             try {
-                const resp = await fetch('/api/content_analysis', { method: 'POST', body: form });
+                const resp = await fetch('/api/content_analysis', { method: 'POST', headers: csrfHeaders, body: form });
                 const data = await resp.json();
 
                 loader.classList.remove('active');

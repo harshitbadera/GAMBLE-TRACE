@@ -1,0 +1,29 @@
+{% extends "case_base.html" %}
+{% block title %}Cases · GambleTrace{% endblock %}
+{% block content %}
+<section class="page-hero">
+    <div><p class="eyebrow">Investigation command center</p><h1>Cases and evidence, in context.</h1><p class="subtitle">Open a case to preserve seed sources, collect technical evidence, score indicators, and correlate suspected gambling infrastructure.</p></div>
+    <a class="button" href="{{ url_for('cases.new_case') }}">＋ Create case</a>
+</section>
+<section class="stat-grid">
+    <div class="stat"><span class="stat-label">All cases</span><strong class="stat-value accent-cyan">{{ summary.total_cases }}</strong><span class="stat-note">investigation register</span></div>
+    <div class="stat"><span class="stat-label">Active</span><strong class="stat-value accent-green">{{ summary.active_cases }}</strong><span class="stat-note">ready for collection</span></div>
+    <div class="stat"><span class="stat-label">Monitoring</span><strong class="stat-value accent-amber">{{ summary.monitoring_cases }}</strong><span class="stat-note">watching for changes</span></div>
+    <div class="stat"><span class="stat-label">Escalated</span><strong class="stat-value accent-red">{{ summary.escalated_cases }}</strong><span class="stat-note">requires attention</span></div>
+    <div class="stat"><span class="stat-label">Workflow</span><strong class="stat-value accent-purple">01→05</strong><span class="stat-note">seeds to clusters</span></div>
+</section>
+<section class="card card-pad">
+    <div class="card-head"><div><h2>Investigation register</h2><p>Each case keeps scope, source provenance, observations, and evidence isolated.</p></div><span class="chip info">{{ cases|length }} case{{ '' if cases|length == 1 else 's' }}</span></div>
+    {% if cases %}
+    <div class="table-wrap"><table><thead><tr><th>Case</th><th>Workflow</th><th>Priority</th><th>Coverage</th><th class="right">Open</th></tr></thead><tbody>
+        {% for case in cases %}<tr>
+            <td><a class="domain-link" href="{{ url_for('cases.case_detail', case_id=case.id) }}">{{ case.title }}</a><span class="secondary">{{ case.case_number }}{% if case.owner_name %} · {{ case.owner_name }}{% endif %}</span></td>
+            <td><span class="chip {{ case.status|lower }}">{{ case.status }}</span></td>
+            <td><span class="chip {% if case.priority in ['HIGH','CRITICAL'] %}high{% elif case.priority == 'MEDIUM' %}medium{% else %}low{% endif %}">{{ case.priority }}</span></td>
+            <td>{{ case.domain_count }} domains<span class="secondary">{{ case.note_count }} analyst notes</span></td>
+            <td class="right"><a class="button-subtle small" href="{{ url_for('cases.case_detail', case_id=case.id) }}">Workspace →</a></td>
+        </tr>{% endfor %}
+    </tbody></table></div>
+    {% else %}<div class="empty"><strong>Start the first investigation.</strong>Create a case, state its scope, then import the seed-domain file you were given.</div>{% endif %}
+</section>
+{% endblock %}
